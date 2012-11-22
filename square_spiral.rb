@@ -1,77 +1,82 @@
 #!/usr/bin/env ruby
 
 class SquareSpiral
+  CLOCKWISE = [[0, 1], [1, 0], [0, -1], [-1, 0]]
+  ANTI_CLOCKWISE = [[0, -1], [-1, 0], [0, 1], [1, 0]]
+
   def initialize(number)
     @number = number.to_i
   end
 
   def create
     if is_valid_input?
-      print_grid(start_spiral)
+      start_spiral
     else
       puts 'Input is not a square number'
     end
   end
 
   def is_valid_input?
-    @number > 0 && Math.sqrt(@number)**2 == @number
+    @number > 0 && Math.sqrt(@number).to_i**2 == @number
   end
 
   private
-
-  # returns the number of steps required to walk a spiral (when combined with direction)
-  # 4x4 = [4,3,3,2,2,1,1]
-  def steps(n)
-    n = n.to_i
-    steps_array = [n]
-    (n-1).downto(1).each { |i| steps_array << [i, i] }
-
-    steps_array.flatten
-  end
-
   def start_spiral
-    sqrt = Math.sqrt(@number).to_i
-    if sqrt.even?
-      movement = [[0, 1], [1, 0], [0, -1], [-1, 0]]
-      row_pos = 0
-      col_pos = -1
-    else
-      movement = [[0, -1], [-1, 0], [0, 1], [1, 0]]
-      row_pos = sqrt - 1
-      col_pos = sqrt
-    end
-
-    move_through_spiral(row_pos, col_pos, movement, sqrt)
-  end
-
-  def move_through_spiral(row_pos, col_pos, movement, sqrt)
-    value = @number
     movement_count = 0
-    grid = Array.new(sqrt) { Array.new(sqrt) }
+    grid = Grid.new(sqrt)
+    value = @number
     steps(sqrt).each do |step|
       step.times do |move|
-        row_pos += movement[movement_count][0]
-        col_pos += movement[movement_count][1]
-
-        grid[row_pos][col_pos] = value
+        grid.move_and_insert_number(movement[movement_count], value)
         value -= 1
       end
       movement_count == 3 ? movement_count = 0 : movement_count += 1
     end
 
-    grid
+    grid.formatted_print(@number.to_s.size)
   end
 
-  def print_grid(grid)
-    max_width = @number.to_s.size
-    puts
-    grid.each do |row|
-      row.each do |cell|
-        print "%-#{max_width}d " % cell
-      end
-      puts
-    end
+  # returns the number of steps required
+  # to walk a spiral (when combined with direction)
+  # 4x4 = [4,3,3,2,2,1,1]
+  def steps(n)
+    steps_array = [n]
+    (n-1).downto(1).each { |i| steps_array.concat([i, i]) }
 
+    steps_array
+  end
+
+  def sqrt
+    @sqrt ||= Math.sqrt(@number).to_i
+  end
+
+  def movement
+    @movement ||= sqrt.even? ? CLOCKWISE : ANTI_CLOCKWISE
+  end
+
+end
+
+class Grid
+  def initialize(width)
+    @grid = Array.new(width) { Array.new(width) }
+    @row_position = width.even? ? 0 : (width - 1)
+    @column_position = width.even? ? -1 : width
+  end
+
+  def move_and_insert_number(position_adjust, number)
+    @row_position += position_adjust[0]
+    @column_position += position_adjust[1]
+    @grid[@row_position][@column_position] = number
+  end
+
+  def formatted_print(column_width)
+    print "\n"
+    @grid.each do |row|
+      row.each do |cell|
+        print "%-#{column_width}d " % cell
+      end
+      print "\n"
+    end
   end
 end
 
