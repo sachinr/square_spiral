@@ -1,6 +1,8 @@
+#!/usr/bin/env ruby
+
 class SquareSpiral
   def initialize(number)
-    @number = number
+    @number = number.to_i
   end
 
   def create
@@ -12,15 +14,13 @@ class SquareSpiral
   end
 
   def is_valid_input?
-    (@number.is_a?(Fixnum) || @number.is_a?(Float)) &&
-      @number > 0 && is_perfect_square?
+    @number > 0 && Math.sqrt(@number)**2 == @number
   end
 
   private
-  def is_perfect_square?
-    Math.sqrt(@number)**2 == @number
-  end
 
+  # returns the number of steps required to walk a spiral (when combined with direction)
+  # 4x4 = [4,3,3,2,2,1,1]
   def steps(n)
     n = n.to_i
     steps_array = [n]
@@ -64,5 +64,7 @@ class SquareSpiral
     end
 
   end
-
 end
+
+app = SquareSpiral.new(ARGV.first)
+app.create
