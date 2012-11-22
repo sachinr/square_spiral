@@ -30,21 +30,30 @@ class SquareSpiral
   end
 
   def start_spiral
-    sqrt = Math.sqrt(@number)
-    grid = Array.new(sqrt) { Array.new(sqrt) }
-    movement = [[0, 1], [1, 0], [0, -1], [-1, 0]]
+    sqrt = Math.sqrt(@number).to_i
+    if sqrt.even?
+      movement = [[0, 1], [1, 0], [0, -1], [-1, 0]]
+      row_pos = 0
+      col_pos = -1
+    else
+      movement = [[0, -1], [-1, 0], [0, 1], [1, 0]]
+      row_pos = sqrt - 1
+      col_pos = sqrt
+    end
 
-    x_pos = 0
-    y_pos = -1
-    movement_count = 0
+    move_through_spiral(row_pos, col_pos, movement, sqrt)
+  end
+
+  def move_through_spiral(row_pos, col_pos, movement, sqrt)
     value = @number
-
-    steps(sqrt).each do |step| #4
+    movement_count = 0
+    grid = Array.new(sqrt) { Array.new(sqrt) }
+    steps(sqrt).each do |step|
       step.times do |move|
-        x_pos += movement[movement_count][0]
-        y_pos += movement[movement_count][1]
+        row_pos += movement[movement_count][0]
+        col_pos += movement[movement_count][1]
 
-        grid[x_pos][y_pos] = value
+        grid[row_pos][col_pos] = value
         value -= 1
       end
       movement_count == 3 ? movement_count = 0 : movement_count += 1
